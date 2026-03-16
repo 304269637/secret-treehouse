@@ -1,0 +1,22 @@
+# Render 部署配置
+services:
+  # 匿名情绪树洞后端API
+  - type: web
+    name: secret-treehouse-api
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false  # 需要手动设置
+      - key: CORS_ORIGIN
+        value: https://secret-treehouse.vercel.app  # 等前端部署后更新
+    healthCheckPath: /api/health
+    autoDeploy: true
+    plan: free
