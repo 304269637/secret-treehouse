@@ -13,9 +13,11 @@ if (isLocalhost) {
     API_BASE = 'http://localhost:3000';
     console.log('🔧 开发环境：使用本地API服务器');
 } else {
-    // Render生产环境 - 使用已部署的Render后端
-    API_BASE = 'https://secret-treehouse-api.onrender.com';
-    console.log('🚀 生产环境：使用Render后端API');
+    // 生产环境 - 使用本地服务器（通过ngrok或类似服务公开）
+    // 注意：这需要将本地服务器公开到互联网
+    // 临时方案：使用静态数据模式
+    API_BASE = 'http://localhost:3000'; // 暂时保持，需要公开服务
+    console.log('⚠️  生产环境：需要公开本地服务器或使用静态数据');
 }
 
 // 全局配置
