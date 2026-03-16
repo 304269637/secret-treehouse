@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📮 匿名树洞 - 写下你的心事</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 首页特定样式 */
+        .home-header {
+            text-align: center;
+            padding: 50px 20px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+            border-radius: var(--radius-xl);
+            margin-bottom: 40px;
+            color: white;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .home-header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+        
+        .home-header .subtitle {
+            font-size: 1.4rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .home-header .tagline {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            font-style: italic;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .view-messages-link {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            transition: all var(--transition-normal);
+        }
+        
+        .view-messages-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+        
+        /* 表单卡片特殊样式 */
+        .form-card {
+            background: var(--color-bg-alt);
+            border-radius: var(--radius-lg);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-border-light);
+        }
+        
+        .form-card h2 {
+            color: var(--color-primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* 情绪选择器增强 */
+        .emotion-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .emotion-option {
+            padding: 12px;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            background: white;
+        }
+        
+        .emotion-option:hover {
+            border-color: var(--color-primary);
+            transform: translateY(-2px);
+        }
+        
+        .emotion-option.selected {
+            border-color: var(--color-primary);
+            background: var(--color-primary-light);
+            color: var(--color-primary-dark);
+            font-weight: 600;
+        }
+        
+        .emotion-emoji {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        /* 字符计数器 */
+        .char-counter {
+            text-align: right;
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            margin-top: 5px;
+        }
+        
+        .char-counter.warning {
+            color: #F59E0B;
+        }
+        
+        .char-counter.danger {
+            color: #EF4444;
+            font-weight: 600;
+        }
+        
+        /* 主页网格布局 */
+        .home-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 1024px) {
+            .home-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 侧边栏 */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .info-card {
+            background: var(--color-bg-alt);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .info-card h3 {
+            color: var(--color-secondary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .tips-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .tips-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--color-border-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tips-list li:last-child {
+            border-bottom: none;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .home-header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .home-header .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .form-card {
+                padding: 1.5rem;
+            }
+            
+            .emotion-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .home-header {
+                padding: 30px 15px;
+            }
+            
+            .home-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .emotion-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+        /* ==================== 基础样式 ==================== */
+        :root {
+            --primary-color: #FFB6C1; /* 浅粉红 - 温暖 */
+            --secondary-color: #87CEEB; /* 天蓝色 - 平静 */
+            --accent-color: #98FB98; /* 浅绿色 - 希望 */
+            --text-color: #4A5568; /* 深灰色 - 易读 */
+            --bg-color: #FFF5F5; /* 浅粉白 - 柔和 */
+            --card-bg: #FFFFFF; /* 白色卡片 */
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            --radius: 16px;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* ==================== 头部样式 ==================== */
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: var(--radius);
+            margin-bottom: 40px;
+            color: white;
+            box-shadow: var(--shadow);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .header .tagline {
+            font-size: 1rem;
+            opacity: 0.8;
+            font-style: italic;
+        }
+        
+        /* ==================== 卡片样式 ==================== */
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+        
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* ==================== 表单样式 ==================== */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E2E8F0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+            font-family: inherit;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.2);
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        /* ==================== 按钮样式 ==================== */
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background: #FF8FA3;
+            transform: translateY(-2px);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-block {
+            width: 100%;
+        }
+        
+        .btn-secondary {
+            background: var(--secondary-color);
+        }
+        
+        .btn-secondary:hover {
+            background: #6CB4EE;
+        }
+        
+        /* ==================== 留言卡片样式 ==================== */
+        .message-card {
+            background: #F8FAFC;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .message-nickname {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .message-time {
+            font-size: 0.9rem;
+            color: #94A3B8;
+        }
+        
+        .message-content {
+            margin-bottom: 15px;
+            line-height: 1.7;
+        }
+        
+        .message-emotion {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255, 182, 193, 0.1);
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+        
+        .reply-section {
+            background: #F0FFF4;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .reply-label {
+            font-weight: 600;
+            color: #38A169;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .reply-content {
+            line-height: 1.7;
+            color: #2D3748;
+        }
+        
+        /* ==================== 状态提示样式 ==================== */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-success {
+            background: #C6F6D5;
+            color: #22543D;
+            border-left: 4px solid #38A169;
+        }
+        
+        .alert-error {
+            background: #FED7D7;
+            color: #742A2A;
+            border-left: 4px solid #E53E3E;
+        }
+        
+        .alert-info {
+            background: #BEE3F8;
+            color: #2A4365;
+            border-left: 4px solid #3182CE;
+        }
+        
+        /* ==================== 加载状态样式 ==================== */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94A3B8;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #E2E8F0;
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* ==================== 页脚样式 ==================== */
+        .footer {
+            text-align: center;
+            padding: 30px 20px;
+            color: #94A3B8;
+            font-size: 0.9rem;
+            margin-top: 40px;
+        }
+        
+        .footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* ==================== 响应式设计 ==================== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .btn {
+                padding: 12px 24px;
+            }
+        }
+        
+        /* ==================== 工具类 ==================== */
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-4 {
+            margin-top: 20px;
+        }
+        
+        .mb-4 {
+            margin-bottom: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header">
+            <h1>🌳 匿名情绪树洞</h1>
+            <p class="subtitle">让心事有处安放，让温暖触手可及</p>
+            <p class="tagline">这里是一个安全、温暖的倾诉空间，你的每一份心事都值得被倾听</p>
+        </header>
+        
+        <!-- 状态提示 -->
+        <div id="successAlert" class="alert alert-success hidden">
+            ✅ 感谢你的分享！你的留言已收到，正在等待温暖回应。
+        </div>
+        
+        <div id="errorAlert" class="alert alert-error hidden">
+            ❌ 提交失败，请稍后重试。
+        </div>
+        
+        <!-- 主页网格布局 -->
+        <div class="home-grid">
+            <!-- 主内容区 -->
+            <div>
+                <!-- 写信卡片 -->
+                <div class="form-card">
+                    <h2>📝 写下你的心事</h2>
+                    <form id="messageForm">
+                        <div class="form-group">
+                            <label for="nickname" class="form-label">昵称（可选）</label>
+                            <input type="text" id="nickname" class="form-control" placeholder="可以叫我...（留空则显示为'匿名朋友'）">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">此刻的心情</label>
+                            <div class="emotion-selector">
+                                <div class="emotion-option" data-emotion="快乐">
+                                    <span class="emotion-emoji">😊</span>
+                                    <span>快乐</span>
+                                </div>
+                                <div class="emotion-option" data-emotion="悲伤">
+                                    <span class="emotion-emoji">😢</span>
+                                    <span>悲伤</span>
+                                </div>
+                                <div class="emotion-option" data-emotion="焦虑">
+                                    <span class="emotion-emoji">😰</span>
+                                    <span>焦虑</span>
+                                </div>
+                                <div class="emotion-option" data-emotion="压力">
+                                    <span class="emotion-emoji">😫</span>
+                                    <span>压力</span>
+                                </div>
+                                <div class="emotion-option" data-emotion="迷茫">
+                                    <span class="emotion-emoji">🤔</span>
+                                    <span>迷茫</span>
+                                </div>
+                                <div class="emotion-option" data-emotion="孤独">
+                                    <span class="emotion-emoji">🌙</span>
+                                    <span>孤独</span>
+                                </div>
+                                <div class="emotion-option" data-emotion="平静">
+                                    <span class="emotion-emoji">😌</span>
+                                    <span>平静</span>
+                                </div>
+                                <div class="emotion-option" data-emotion="感恩">
+                                    <span class="emotion-emoji">🙏</span>
+                                    <span>感恩</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="emotion" value="">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="content" class="form-label">想说的话</label>
+                            <textarea id="content" class="form-control" placeholder="在这里写下你的心事、烦恼、或者任何想说的话..." rows="6"></textarea>
+                            <div class="char-counter">
+                                <span id="charCount">0</span>/1000 字符
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" id="agreePublic" class="form-check-input">
+                                <label for="agreePublic" class="form-check-label">
+                                    我同意在匿名处理后公开分享我的故事，帮助有相似经历的人
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-block btn-lg" id="submitBtn">
+                            💌 送出我的心情
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- 侧边栏 -->
+            <div class="sidebar">
+                <!-- 小贴士卡片 -->
+                <div class="info-card">
+                    <h3>💡 分享小贴士</h3>
+                    <ul class="tips-list">
+                        <li>✨ 完全匿名，保护隐私</li>
+                        <li>💖 真实表达，无需修饰</li>
+                        <li>🕊️ 放下负担，轻松分享</li>
+                        <li>🌱 你的故事可能帮助他人</li>
+                        <li>📅 24小时内获得温暖回应</li>
+                    </ul>
+                </div>
+                
+                <!-- 查看留言卡片 -->
+                <div class="info-card">
+                    <h3>📖 看看大家的故事</h3>
+                    <p>已经有很多朋友在这里分享了他们的心事，并收到了温暖的回应。</p>
+                    <a href="/messages.html" class="btn btn-secondary btn-block mt-3">
+                        🌲 查看树洞回音
+                    </a>
+                </div>
+                
+                <!-- 隐私承诺卡片 -->
+                <div class="info-card">
+                    <h3>🛡️ 我们的承诺</h3>
+                    <p>• 严格匿名处理所有留言</p>
+                    <p>• 不收集任何个人身份信息</p>
+                    <p>• 未经同意不会公开任何内容</p>
+                    <p>• 数据安全加密存储</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 查看留言卡片 -->
+        <div class="card">
+            <h2>📖 温暖回响</h2>
+            <div id="messagesContainer">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>正在加载温暖的故事...</p>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <button class="btn btn-secondary" onclick="loadMessages()">
+                    🔄 刷新故事
+                </button>
+            </div>
+        </div>
+        
+        <!-- 统计卡片 -->
+        <div class="card">
+            <h2>📊 树洞数据</h2>
+            <div id="statsContainer">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>正在加载统计数据...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>🌳 匿名情绪树洞 | 项目代号: secret-treehouse</p>
+            <p>💖 每一份心事都值得被倾听，每一份温暖都值得被传递</p>
+            <p>🛡️ 我们承诺：所有留言都会严格匿名处理，保护你的隐私</p>
+            <p class="mt-4">
+                <a href="javascript:void(0)" onclick="showAbout()">关于我们</a> | 
+                <a href="javascript:void(0)" onclick="showPrivacy()">隐私政策</a> | 
+                <a href="javascript:void(0)" onclick="showContact()">联系我们</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // ==================== 全局变量 ====================
+        const API_BASE = window.location.origin;
+        
+        // ==================== 工具函数 ====================
+        function showAlert(type, message) {
+            // 隐藏所有提示
+            document.getElementById('successAlert').classList.add('hidden');
+            document.getElementById('errorAlert').classList.add('hidden');
+            
+            // 显示指定类型的提示
+            const alertElement = document.getElementById(type + 'Alert');
+            if (alertElement) {
+                alertElement.textContent = message;
+                alertElement.classList.remove('hidden');
+                
+                // 5秒后自动隐藏
+                setTimeout(() => {
+                    alertElement.classList.add('hidden');
+                }, 5000);
+            }
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return '刚刚';
+            if (diffMins < 60) return `${diffMins}分钟前`;
+            if (diffHours < 24) return `${diffHours}小时前`;
+            if (diffDays < 7) return `${diffDays}天前`;
+            
+            return date.toLocaleDateString('zh-CN', {
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+        
+        // ==================== 加载留言 ====================
+        async function loadMessages() {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>正在加载温暖的故事...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/messages`);
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    let html = '';
+                    
+                    data.data.forEach(message => {
+                        html += `
+                            <div class="message-card">
+                                <div class="message-header">
+                                    <div class="message-nickname">
+                                        ${message.nickname || '匿名朋友'}
+                                    </div>
+                                    <div class="message-time">
+                                        ${formatDate(message.created_at)}
+                                    </div>
+                                </div>
+                                
+                                ${message.emotion ? `
+                                    <div class="message-emotion">
+                                        ${message.emotion}
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="message-content">
+                                    ${message.content.replace(/\n/g, '<br>')}
+                                </div>
+                                
+                                ${message.reply_content ? `
+                                    <div class="reply-section">
+                                        <div class="reply-label">
+                                            💌 树洞的温暖回应
+                                        </div>
+                                        <div class="reply-content">
+                                            ${message.reply_content.replace(/\n/g, '<br>')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = `
+                        <div class="text-center" style="padding: 40px; color: #94A3B8;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">🌱</div>
+                            <p>树洞正在等待第一个温暖的故事...</p>
+                            <p style="font-size: 0.9rem; margin-top: 10px;">成为第一个分享的人吧！</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('加载留言失败:', error);
+                container.innerHTML = `
+                    <div class="text-center" style="padding: 40px; color: #E53E3E;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">😔</div>
+                        <p>加载失败，请稍后重试</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // ==================== 加载统计数据 ====================
+        async function loadStats() {
+            const container = document.getElementById('statsContainer');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/stats`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const stats = data.data;
+                    container.innerHTML = `
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                            <div style="text-align: center; padding: 20px; background: rgba(255, 182, 193, 0.1); border-radius: 12px;">
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);">
+                                    ${stats.totalMessages}
+                                </div>
+                                <div style="color: var(--text-color); margin-top: 8px;">
+                                    总留言数
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; padding: 20px; background: rgba(135, 206, 235, 0.1); border-radius: 12px;">
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--secondary-color);">
+                                    ${stats.approvedMessages}
+                                </div>
+                                <div style="color: var(--text-color); margin-top: 8px;">
+                                    已公开留言
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; padding: 20px; background: rgba(152, 251, 152, 0.1); border-radius: 12px;">
+                                <div style="font-size: 2rem; font-weight: bold; color: var(--accent-color);">
+                                    ${stats.repliedMessages}
+                                </div>
+                                <div style="color: var(--text-color); margin-top: 8px;">
+                                    已回复留言
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; padding: 20px; background: rgba(255, 215, 0, 0.1); border-radius: 12px;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #FFD700;">
+                                    ${stats.waitingForReply}
+                                </div>
+                                <div style="color: var(--text-color); margin-top: 8px;">
+                                    等待回应
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #94A3B8;">
+                        统计数据加载失败
+                    </div>
+                `;
+            }
+        }
+        
+        // ==================== 情绪选择器 ====================
+        function initEmotionSelector() {
+            const emotionOptions = document.querySelectorAll('.emotion-option');
+            const emotionInput = document.getElementById('emotion');
+            
+            emotionOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // 移除其他选项的选中状态
+                    emotionOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // 添加当前选项的选中状态
+                    this.classList.add('selected');
+                    
+                    // 更新隐藏输入框的值
+                    emotionInput.value = this.dataset.emotion;
+                });
+            });
+            
+            // 初始化选中第一个选项
+            if (emotionOptions.length > 0) {
+                emotionOptions[0].click();
+            }
+        }
+        
+        // ==================== 字符计数器 ====================
+        function initCharCounter() {
+            const textarea = document.getElementById('content');
+            const charCount = document.getElementById('charCount');
+            const counter = document.querySelector('.char-counter');
+            
+            textarea.addEventListener('input', function() {
+                const length = this.value.length;
+                charCount.textContent = length;
+                
+                // 更新样式
+                counter.classList.remove('warning', 'danger');
+                if (length > 800) {
+                    counter.classList.add('warning');
+                }
+                if (length > 950) {
+                    counter.classList.add('danger');
+                }
+                if (length > 1000) {
+                    this.value = this.value.substring(0, 1000);
+                    charCount.textContent = 1000;
+                }
+            });
+        }
+        
+        // ==================== 表单验证 ====================
+        function validateForm() {
+            const content = document.getElementById('content').value.trim();
+            const emotion = document.getElementById('emotion').value;
+            
+            if (!content) {
+                showAlert('error', '请写下你想说的话');
+                return false;
+            }
+            
+            if (content.length < 10) {
+                showAlert('error', '请至少写下10个字符，让我们更好地理解你');
+                return false;
+            }
+            
+            if (!emotion) {
+                showAlert('error', '请选择你此刻的心情');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // ==================== 提交留言 ====================
+        document.getElementById('messageForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // 表单验证
+            if (!validateForm()) {
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.textContent;
+            
+            // 获取表单数据
+            const nickname = document.getElementById('nickname').value.trim();
+            const emotion = document.getElementById('emotion').value;
+            const content = document.getElementById('content').value.trim();
+            const agreePublic = document.getElementById('agreePublic').checked;
+            
+            // 禁用按钮，显示加载状态
+            submitBtn.disabled = true;
+            submitBtn.textContent = '正在发送...';
+            submitBtn.classList.add('btn-secondary');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        nickname: nickname || undefined,
+                        emotion: emotion || undefined,
+                        content: content,
+                        is_public: agreePublic ? 1 : 0
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // 显示成功提示
+                    showAlert('success', data.message);
+                    
+                    // 清空表单但保留情绪选择
+                    document.getElementById('nickname').value = '';
+                    document.getElementById('content').value = '';
+                    document.getElementById('agreePublic').checked = false;
+                    document.getElementById('charCount').textContent = '0';
+                    document.querySelector('.char-counter').classList.remove('warning', 'danger');
+                    
+                    // 刷新留言列表和统计数据
+                    loadMessages();
+                    loadStats();
+                    
+                    // 显示成功动画
+                    submitBtn.textContent = '✅ 发送成功！';
+                    setTimeout(() => {
+                        submitBtn.textContent = originalText;
+                    }, 2000);
+                } else {
+                    showAlert('error', data.error || '提交失败，请稍后重试');
+                    submitBtn.textContent = '❌ 发送失败';
+                    setTimeout(() => {
+                        submitBtn.textContent = originalText;
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('提交失败:', error);
+                showAlert('error', '网络错误，请检查连接后重试');
+                submitBtn.textContent = '🌐 网络错误';
+                setTimeout(() => {
+                    submitBtn.textContent = originalText;
+                }, 2000);
+            } finally {
+                // 恢复按钮
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    submitBtn.classList.remove('btn-secondary');
+                }, 2000);
+            }
+        });
+        
+        // ==================== 页面信息弹窗 ====================
+        function showAbout() {
+            alert(`🌳 匿名情绪树洞\n\n这是一个温暖、安全的倾诉空间。\n在这里，你可以匿名分享心事，获得温暖的回应。\n\n我们相信：\n• 每一份心事都值得被倾听\n• 每一份温暖都值得被传递\n• 每一个灵魂都值得被关爱\n\n项目代号: secret-treehouse\n版本: 1.0.0`);
+        }
+        
+        function showPrivacy() {
+            alert(`🛡️ 隐私政策\n\n我们郑重承诺：\n1. 所有留言都会严格匿名处理\n2. 不会收集任何个人身份信息\n3. 未经同意不会公开任何留言\n4. 数据安全加密存储\n5. 你可以随时请求删除自己的留言\n\n你的隐私和安全是我们最重视的事情。`);
+        }
+        
+        function showContact() {
+            alert(`📧 联系我们\n\n如果你有任何问题或建议：\n\n• 技术问题: 检查控制台错误信息\n• 内容问题: 留言时选择是否公开\n• 建议反馈: 欢迎提出宝贵意见\n\n我们致力于打造一个更好的倾诉空间。`);
+        }
+        
+        // ==================== 页面初始化 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📮 匿名树洞留言页已加载');
+            console.log('API基础地址:', API_BASE);
+            
+            // 初始化组件
+            initEmotionSelector();
+            initCharCounter();
+            
+            // 加载初始数据
+            loadMessages();
+            loadStats();
+            
+            // 设置自动刷新（每2分钟）
+            setInterval(loadMessages, 2 * 60 * 1000);
+            setInterval(loadStats, 5 * 60 * 1000);
+            
+            // 显示欢迎信息
+            setTimeout(() => {
+                console.log('💖 欢迎来到匿名情绪树洞！');
+                console.log('📝 在这里，你的每一份心事都值得被倾听');
+                
+                // 显示页面加载完成提示
+                const welcomeMsg = document.createElement('div');
+                welcomeMsg.className = 'alert alert-success';
+                welcomeMsg.innerHTML = '✨ 页面加载完成，开始写下你的心事吧！';
+                welcomeMsg.style.position = 'fixed';
+                welcomeMsg.style.top = '20px';
+                welcomeMsg.style.right = '20px';
+                welcomeMsg.style.zIndex = '1000';
+                welcomeMsg.style.maxWidth = '300px';
+                document.body.appendChild(welcomeMsg);
+                
+                setTimeout(() => {
+                    welcomeMsg.style.opacity = '0';
+                    welcomeMsg.style.transition = 'opacity 0.5s ease';
+                    setTimeout(() => welcomeMsg.remove(), 500);
+                }, 3000);
+            }, 1000);
+        });
+        
+        // ==================== 全局导出函数 ====================
+        window.loadMessages = loadMessages;
+        window.loadStats = loadStats;
+        window.showAbout = showAbout;
+        window.showPrivacy = showPrivacy;
+        window.showContact = showContact;
+    </script>
+</body>
+</html>
