@@ -2,7 +2,8 @@
 // 项目代号: secret-treehouse
 // 功能: 动态加载留言数据到展示页
 
-const API_BASE = 'http://localhost:3000';
+// API基础地址（从config.js加载）
+const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3000';
 
 // 工具函数
 function escapeHtml(text) {

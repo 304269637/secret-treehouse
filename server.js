@@ -12,18 +12,60 @@ const helmet = require('helmet');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ==================== 环境配置 ====================
+const isProduction = process.env.NODE_ENV === 'production';
+console.log(`🚀 运行环境: ${isProduction ? '生产环境' : '开发环境'}`);
+
 // ==================== 中间件配置 ====================
 app.use(helmet()); // 安全头
-app.use(cors()); // 跨域支持
+
+// CORS配置 - 生产环境更严格
+if (isProduction) {
+    const allowedOrigins = [
+        'https://secret-treehouse.vercel.app',
+        'http://localhost:3000'
+    ];
+    
+    app.use(cors({
+        origin: function(origin, callback) {
+            // 允许没有origin的请求（如curl）
+            if (!origin) return callback(null, true);
+            
+            if (allowedOrigins.indexOf(origin) === -1) {
+                const msg = `CORS策略阻止了来自 ${origin} 的请求`;
+                console.warn(msg);
+                return callback(new Error(msg), false);
+            }
+            return callback(null, true);
+        },
+        credentials: true
+    }));
+} else {
+    // 开发环境允许所有来源
+    app.use(cors());
+    console.log('🔓 开发环境：CORS允许所有来源');
+}
+
 app.use(express.json()); // JSON解析
 app.use(express.static(path.join(__dirname, 'public'))); // 静态文件服务
 
 // ==================== 数据库连接 ====================
-const db = new sqlite3.Database(path.join(__dirname, 'data/treehouse.db'), (err) => {
+// 生产环境警告：SQLite在Render上可能不是持久化的
+if (isProduction) {
+    console.warn('⚠️  生产环境警告：SQLite数据库在Render免费版上可能不是持久化的');
+    console.warn('💡 建议：升级到Render的PostgreSQL或使用Railway的持久化存储');
+}
+
+const dbPath = isProduction 
+    ? path.join(__dirname, 'data/treehouse.db')
+    : path.join(__dirname, 'data/treehouse.db');
+
+const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('❌ 数据库连接失败:', err.message);
+    console.error('💡 提示：确保data目录存在且有写入权限');
   } else {
-    console.log('✅ 成功连接到SQLite数据库');
+    console.log(`✅ 成功连接到SQLite数据库: ${dbPath}`);
     
     // 初始化表结构（如果不存在）
     db.run(`
@@ -398,7 +440,8 @@ app.use((req, res) => {
 app.listen(PORT, () => {
   console.log('========================================');
   console.log('🦞 匿名情绪树洞服务器启动成功！');
-  console.log(`🌐 访问地址: http://localhost:${PORT}`);
+  console.log(`🌐 环境: ${isProduction ? '生产环境' : '开发环境'}`);
+  console.log(`🚪 端口: ${PORT}`);
   console.log(`📊 健康检查: http://localhost:${PORT}/api/health`);
   console.log(`💌 提交留言: POST http://localhost:${PORT}/api/messages`);
   console.log(`📝 查看留言: GET http://localhost:${PORT}/api/messages`);
@@ -406,6 +449,14 @@ app.listen(PORT, () => {
   console.log('项目代号: secret-treehouse');
   console.log('项目口号: 让心事有处安放，让温暖触手可及');
   console.log('========================================');
+  
+  // 生产环境额外提示
+  if (isProduction) {
+    console.log('⚠️  重要提示：');
+    console.log('├── SQLite数据库在Render免费版可能不是持久化的');
+    console.log('├── 建议升级到PostgreSQL确保数据安全');
+    console.log('└── 定期备份重要数据');
+  }
 });
 
 // 优雅关闭

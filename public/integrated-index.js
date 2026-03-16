@@ -3,8 +3,8 @@
 // 版本: 2.0.0 (集成版)
 // 作者: JavaScript集成小队
 
-// API基础地址
-const API_BASE = 'http://localhost:3000';
+// API基础地址（从config.js加载）
+const API_BASE = window.CONFIG ? window.CONFIG.API_BASE : 'http://localhost:3000';
 
 // 全局状态
 let currentMessages = [];
