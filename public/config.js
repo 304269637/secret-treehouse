@@ -13,9 +13,9 @@ if (isLocalhost) {
     API_BASE = 'http://localhost:3000';
     console.log('🔧 开发环境：使用本地API服务器');
 } else {
-    // Vercel部署环境 - 使用同域API
-    API_BASE = window.location.origin;
-    console.log('🚀 生产环境：使用Vercel同域API');
+    // Render生产环境 - 使用已部署的Render后端
+    API_BASE = 'https://secret-treehouse-api.onrender.com';
+    console.log('🚀 生产环境：使用Render后端API');
 }
 
 // 全局配置
