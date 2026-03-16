@@ -12,14 +12,10 @@ if (isLocalhost) {
     // 本地开发环境
     API_BASE = 'http://localhost:3000';
     console.log('🔧 开发环境：使用本地API服务器');
-} else if (window.location.hostname.includes('vercel.app')) {
-    // Vercel部署环境 - 需要替换为实际的Render后端地址
-    API_BASE = 'https://secret-treehouse-api.onrender.com';
-    console.log('🚀 生产环境：使用Render后端API');
 } else {
-    // 其他环境（如自定义域名）
-    API_BASE = window.location.origin.replace('https://', 'https://api.');
-    console.log('🌐 自定义环境：尝试推导API地址');
+    // Vercel部署环境 - 使用同域API
+    API_BASE = window.location.origin;
+    console.log('🚀 生产环境：使用Vercel同域API');
 }
 
 // 全局配置
