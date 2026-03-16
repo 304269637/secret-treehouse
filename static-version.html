@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌳 匿名情绪树洞 - 静态版本</title>
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 装饰元素 */
+        .tree-decoration {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            opacity: 0.1;
+            z-index: 0;
+        }
+        
+        /* 标题区域 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #4CAF50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        /* 留言表单 */
+        .message-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px dashed #4CAF50;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        /* 情绪选择 */
+        .emotion-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .emotion-option {
+            padding: 8px 15px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .emotion-option:hover {
+            border-color: #4CAF50;
+            transform: translateY(-2px);
+        }
+        
+        .emotion-option.selected {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        
+        /* 提交按钮 */
+        .submit-btn {
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        /* 留言展示 */
+        .messages-section {
+            margin-top: 40px;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .message-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #4CAF50;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        
+        .message-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .message-nickname {
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: 1.1rem;
+        }
+        
+        .message-emotion {
+            background: #f0f9f0;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .message-content {
+            line-height: 1.6;
+            margin: 15px 0;
+            color: #444;
+        }
+        
+        .message-reply {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 3px solid #FF9800;
+        }
+        
+        .reply-label {
+            color: #FF9800;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        
+        /* 统计信息 */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #4CAF50, #8BC34A);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .emotion-options {
+                justify-content: center;
+            }
+        }
+        
+        /* 成功提示 */
+        .success-message {
+            background: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tree-decoration"></div>
+        
+        <div class="header">
+            <h1>🌳 匿名情绪树洞</h1>
+            <p>让心事有处安放，让温暖触手可及 💖</p>
+            <p><small>静态版本 - 无需后端服务器</small></p>
+        </div>
+        
+        <!-- 统计信息 -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalMessages">3</div>
+                <div class="stat-label">总分享数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="repliedMessages">3</div>
+                <div class="stat-label">已回应数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayMessages">3</div>
+                <div class="stat-label">今日分享</div>
+            </div>
+        </div>
+        
+        <!-- 成功提示 -->
+        <div class="success-message" id="successMessage">
+            💌 留言已提交！虽然这是静态版本，但你的心事已被听见 💖
+        </div>
+        
+        <!-- 留言表单 -->
+        <div class="message-form">
+            <h2 style="color: #4CAF50; margin-bottom: 20px;">💬 分享你的心事</h2>
+            
+            <div class="form-group">
+                <label for="nickname">昵称（可选）</label>
+                <input type="text" id="nickname" placeholder="可以匿名，也可以留下你的名字">
+            </div>
+            
+            <div class="form-group">
+                <label>当前情绪</label>
+                <div class="emotion-options">
+                    <div class="emotion-option" data-emotion="😊 快乐">😊 快乐</div>
+                    <div class="emotion-option" data-emotion="😔 难过">😔 难过</div>
+                    <div class="emotion-option" data-emotion="😫 压力">😫 压力</div>
+                    <div class="emotion-option" data-emotion="😌 平静">😌 平静</div>
+                    <div class="emotion-option" data-emotion="🤔 思考">🤔 思考</div>
+                </div>
+                <input type="hidden" id="emotion" value="😊 快乐">
+            </div>
+            
+            <div class="form-group">
+                <label for="content">想说的话</label>
+                <textarea id="content" placeholder="在这里写下你的心事、烦恼、快乐或迷茫..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">分类</label>
+                <select id="category">
+                    <option value="情感关系">💖 情感关系</option>
+                    <option value="工作学习">💼 工作学习</option>
+                    <option value="心理健康">🧠 心理健康</option>
+                    <option value="生活日常">🏠 生活日常</option>
+                    <option value="未来迷茫">🧭 未来迷茫</option>
+                </select>
+            </div>
+            
+            <button class="submit-btn" onclick="submitMessage()">
+                <span>分享心事</span>
+                <span>💌</span>
+            </button>
+        </div>
+        
+        <!-- 留言展示 -->
+        <div class="messages-section">
+            <h2 class="section-title">📖 大家的分享</h2>
+            
+            <div id="messagesContainer">
+                <!-- 留言将通过JavaScript动态加载 -->
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px; color: #888; font-size: 0.9rem;">
+            <p>🌳 这是一个温暖的树洞，你的每一份心事都值得被听见</p>
+            <p>💖 静态版本 - 无需服务器，完全在浏览器中运行</p>
+        </div>
+    </div>
+
+    <script>
+        // 静态数据
+        const staticMessages = [
+            {
+                id: 1,
+                nickname: "匿名的小龙虾 🦞",
+                content: "今天工作压力好大，连续开了三个会议，感觉喘不过气...",
+                emotion: "😫 压力",
+                category: "工作学习",
+                created_at: "2026-03-16 14:00:00",
+                reply_content: "压力是成长的信号，你已经很勇敢了。试着把大任务拆解成小步骤，完成一项就给自己一个小奖励。",
+                view_count: 42,
+                like_count: 5
+            },
+            {
+                id: 2,
+                nickname: "迷茫的星星 ✨",
+                content: "不知道未来该往哪里走，感觉大家都在前进，只有我停在原地...",
+                emotion: "😔 迷茫",
+                category: "未来迷茫",
+                created_at: "2026-03-16 13:30:00",
+                reply_content: "每个人都有自己的节奏，迷茫是成长的必经之路。试着写下你的兴趣和优势，小步前进比原地踏步更有意义。",
+                view_count: 28,
+                like_count: 3
+            },
+            {
+                id: 3,
+                nickname: "寻找阳光的人 ☀️",
+                content: "最近总是感到孤独，即使身边有人也觉得寂寞，不知道该怎么办...",
+                emotion: "😔 孤独",
+                category: "情感关系",
+                created_at: "2026-03-16 13:00:00",
+                reply_content: "孤独是自我对话的好时机。试着写日记，或者养一盆植物，让生活多一份陪伴。也可以尝试参加一些兴趣小组，认识新朋友。",
+                view_count: 35,
+                like_count: 7
+            }
+        ];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置情绪选择
+            document.querySelectorAll('.emotion-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.emotion-option').forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    document.getElementById('emotion').value = this.getAttribute('data-emotion');
+                });
+            });
+            
+            // 设置默认情绪
+            document.querySelector('.emotion-option').click();
+            
+            // 加载留言
+            loadMessages();
+            
+            // 更新统计
+            updateStats();
+        });
+
+        // 加载留言
+        function loadMessages() {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+            
+            staticMessages.forEach(msg => {
+                const messageCard = document.createElement('div');
+                messageCard.className = 'message-card';
+                messageCard.innerHTML = `
+                    <div class="message-header">
+                        <div class="message-nickname">${msg.nickname}</div>
+                        <div class="message-emotion">${msg.emotion}</div>
+                    </div>
+                    <div class="message-content">${msg.content}</div>
+                    <div class="message-meta">
+                        <small style="color: #888;">${msg.created_at} • ${msg.category}</small>
+                    </div>
+                    ${msg.reply_content ? `
+                    <div class="message-reply">
+                        <div class="reply-label">💌 树洞回应：</div>
+                        <div>${msg.reply_content}</div>
+                    </div>
+                    ` : ''}
+                    <div style="margin-top: 10px; display: flex; gap: 15px; color: #888;">
+                        <small>👁️ ${msg.view_count} 浏览</small>
+                        <small>❤️ ${msg.like_count} 喜欢</small>
+                    </div>
+                `;
+                container.appendChild(messageCard);
+            });
+        }
+
+        // 提交留言（静态版本）
+        function submitMessage() {
+            const nickname = document.getElementById('nickname').value || '匿名朋友';
+            const emotion = document.getElementById('emotion').value;
+            const content = document.getElementById('content').value;
+            const category = document.getElementById('category').value;
+            
+            if (!content.trim()) {
+                alert('请填写想说的话');
+                return;
+            }
+            
+            // 创建新留言（只在本地）
+            const newMessage = {
+                id: staticMessages.length + 1,
+                nickname: nickname || '匿名朋友',
+                emotion: emotion,
+                content: content,
+                category: category,
+                created_at: new Date().toLocaleString('zh-CN'),
+                reply_content: "感谢你的分享！虽然这是静态版本，但你的心事已被听见。💖",
+                view_count: 0,
+                like_count: 0
+            };
+            
+            // 添加到数组开头
+            staticMessages.unshift(newMessage);
+            
+            // 显示成功提示
+            const successMsg = document.getElementById('successMessage');
+            successMsg.style.display = 'block';
+            
+            // 清空表单
+            document.getElementById('nickname').value = '';
+            document.getElementById('content').value = '';
+            
+            // 重新加载留言
+            loadMessages();
+            
+            // 更新统计
+            updateStats();
+            
+            // 3秒后隐藏成功提示
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 3000);
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('totalMessages').textContent = staticMessages.length;
+            document.getElementById('repliedMessages').textContent = staticMessages.filter(m => m.reply_content).length;
+            
+            const today = new Date().toDateString();
+            const todayMessages = staticMessages.filter(m => {
+                const msgDate = new Date(m.created_at);
+                return msgDate.toDateString() === today;
+            }).length;
+            document.getElementById('todayMessages').textContent = todayMessages;
+        }
+
+        //
